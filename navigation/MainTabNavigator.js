@@ -7,11 +7,11 @@ import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
-const HomeStack = createStackNavigator({
+/*const HomeStack = createStackNavigator({
   Home: HomeScreen,
-});
+});*/
 
-HomeStack.navigationOptions = {
+/*HomeStack.navigationOptions = {
   tabBarLabel: 'Home',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
@@ -23,18 +23,18 @@ HomeStack.navigationOptions = {
       }
     />
   ),
-};
+};*/
 
 const LinksStack = createStackNavigator({
   Links: LinksScreen,
 });
 
 LinksStack.navigationOptions = {
-  tabBarLabel: 'Links',
+  tabBarLabel: 'משימות',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'}
+      name={Platform.OS === 'ios' ? 'ios-clipboard' : 'md-link'}
     />
   ),
 };
@@ -44,7 +44,7 @@ const SettingsStack = createStackNavigator({
 });
 
 SettingsStack.navigationOptions = {
-  tabBarLabel: 'Settings',
+  tabBarLabel: 'הגדרות',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -54,7 +54,7 @@ SettingsStack.navigationOptions = {
 };
 
 export default createBottomTabNavigator({
-  HomeStack,
+  //HomeStack,
   LinksStack,
   SettingsStack,
 });
