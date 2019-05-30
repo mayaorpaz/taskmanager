@@ -1,5 +1,14 @@
-import React from "react";
-import { Button, StyleSheet, Text, View, TextInput } from "react-native";
+/*import React from "react";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  List,
+  ListItem,
+  FlatList
+} from "react-native";
 import {
   Stitch,
   AnonymousCredential,
@@ -12,6 +21,7 @@ export default class App extends React.Component {
     this.state = {
       currentUserId: undefined,
       client: undefined,
+      tasks: undefined,
       text: ""
     };
     this._loadClient = this._loadClient.bind(this);
@@ -45,8 +55,18 @@ export default class App extends React.Component {
 
     logoutButton = <Button onPress={this._onPressLogout} title="Logout" />;
 
+    taskList = this.state.tasks ? (
+      <FlatList
+        data={this.state.tasks}
+        renderItem={({ item }) => <Text>{item.author}</Text>}
+      />
+    ) : (
+      <Text />
+    );
+
     logoutView = (
       <View>
+        {this.state.tasks ? taskList : <Text />}
         {textInput}
         {logoutTest}
         {logoutButton}
@@ -72,11 +92,28 @@ export default class App extends React.Component {
   }
 
   _onPressLogin() {
+    const stitchAppClient = Stitch.defaultAppClient;
+    const mongoClient = stitchAppClient.getServiceClient(
+      RemoteMongoClient.factory,
+      "mongodb-atlas"
+    );
+    const db = mongoClient.db("taskmanager");
+    const tasks = db.collection("tasks");
     this.state.client.auth
       .loginWithCredential(new AnonymousCredential())
       .then(user => {
         console.log(`Successfully logged in as user ${user.id}`);
         this.setState({ currentUserId: user.id });
+        tasks
+          .find({}, { limit: 100 })
+          .asArray()
+          .then(docs => {
+            this.setState({ tasks: docs });
+            console.warn(docs);
+          })
+          .catch(err => {
+            console.warn(err);
+          });
       })
       .catch(err => {
         console.log(`Failed to log in anonymously: ${err}`);
@@ -111,13 +148,10 @@ export default class App extends React.Component {
         { $set: { status: "new", description: this.state.text } },
         { upsert: true }
       )
-      .then(() =>
-        tasks
-          .find({ author: this.state.currentUserId }, { limit: 100 })
-          .asArray()
-      )
+      .then(() => tasks.find({}, { limit: 100 }).asArray())
       .then(docs => {
-        console.warn("Found docs", docs);
+        this.setState({ tasks: docs });
+        console.warn(docs);
       })
       .catch(err => {
         console.warn(err);
@@ -132,16 +166,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   }
-});
+});*/
 
-/*import React from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
-import { AppLoading, Asset, Font, Icon } from 'expo';
-import AppNavigator from './navigation/AppNavigator';
+import React from "react";
+import { Platform, StatusBar, StyleSheet, View } from "react-native";
+import { AppLoading, Asset, Font, Icon } from "expo";
+import AppNavigator from "./navigation/AppNavigator";
 
 export default class App extends React.Component {
   state = {
-    isLoadingComplete: false,
+    isLoadingComplete: false
   };
 
   render() {
@@ -156,7 +190,7 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+          {Platform.OS === "ios" && <StatusBar barStyle="default" />}
           <AppNavigator />
         </View>
       );
@@ -166,16 +200,16 @@ export default class App extends React.Component {
   _loadResourcesAsync = async () => {
     return Promise.all([
       Asset.loadAsync([
-        require('./assets/images/robot-dev.png'),
-        require('./assets/images/robot-prod.png'),
+        require("./assets/images/robot-dev.png"),
+        require("./assets/images/robot-prod.png")
       ]),
       Font.loadAsync({
         // This is the font that we are using for our tab bar
         ...Icon.Ionicons.font,
         // We include SpaceMono because we use it in HomeScreen.js. Feel free
         // to remove this if you are not using it in your app
-        'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
-      }),
+        "space-mono": require("./assets/fonts/SpaceMono-Regular.ttf")
+      })
     ]);
   };
 
@@ -193,6 +227,6 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-});*/
+    backgroundColor: "#fff"
+  }
+});
