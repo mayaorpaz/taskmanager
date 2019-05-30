@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View, TextInput } from "react-native";
 import {
   Stitch,
   AnonymousCredential,
@@ -11,7 +11,8 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       currentUserId: undefined,
-      client: undefined
+      client: undefined,
+      text: ""
     };
     this._loadClient = this._loadClient.bind(this);
     this._onPressLogin = this._onPressLogin.bind(this);
@@ -32,14 +33,23 @@ export default class App extends React.Component {
 
     loginButton = <Button onPress={this._onPressLogin} title="Login" />;
 
+    textInput = (
+      <TextInput
+        style={{ height: 40 }}
+        placeholder="Type here to submit a new task..."
+        onChangeText={text => this.setState({ text })}
+      />
+    );
+
     logoutTest = <Button onPress={this._onPressTest} title="Test" />;
 
     logoutButton = <Button onPress={this._onPressLogout} title="Logout" />;
 
     logoutView = (
       <View>
-        {logoutButton}
+        {textInput}
         {logoutTest}
+        {logoutButton}
       </View>
     );
 
@@ -98,7 +108,7 @@ export default class App extends React.Component {
     tasks
       .updateOne(
         { author: this.state.currentUserId },
-        { $set: { status: "new", description: "noDESC" } },
+        { $set: { status: "new", description: this.state.text } },
         { upsert: true }
       )
       .then(() =>
