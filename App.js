@@ -55,9 +55,22 @@ export default class App extends React.Component {
         const db = mongoClient.db("taskmanager");
         const tasks = db.collection("tasks");
         tasks
-          .find({}, { limit: 10 })
-          .toArray()
-          .then(results => console.warn("Results:", results));
+          .updateOne(
+            { author: client.auth.user.id },
+            { $set: { status: "new" } },
+            { upsert: true }
+          )
+          .then(() =>
+            tasks
+              .find({ author: client.auth.user.id }, { limit: 100 })
+              .asArray()
+          )
+          .then(docs => {
+            console.warn("Found docs", docs);
+          })
+          .catch(err => {
+            console.warn(err);
+          });
       }
     });
   }
