@@ -16,6 +16,7 @@ export default class App extends React.Component {
     this._loadClient = this._loadClient.bind(this);
     this._onPressLogin = this._onPressLogin.bind(this);
     this._onPressLogout = this._onPressLogout.bind(this);
+    this._onPressTest = this._onPressTest.bind(this);
   }
 
   componentDidMount() {
@@ -31,12 +32,21 @@ export default class App extends React.Component {
 
     loginButton = <Button onPress={this._onPressLogin} title="Login" />;
 
+    logoutTest = <Button onPress={this._onPressTest} title="Test" />;
+
     logoutButton = <Button onPress={this._onPressLogout} title="Logout" />;
+
+    logoutView = (
+      <View>
+        {logoutButton}
+        {logoutTest}
+      </View>
+    );
 
     return (
       <View style={styles.container}>
         <Text> {loginStatus} </Text>
-        {this.state.currentUserId !== undefined ? logoutButton : loginButton}
+        {this.state.currentUserId !== undefined ? logoutView : loginButton}
       </View>
     );
   }
@@ -47,30 +57,6 @@ export default class App extends React.Component {
 
       if (client.auth.isLoggedIn) {
         this.setState({ currentUserId: client.auth.user.id });
-        const stitchAppClient = Stitch.defaultAppClient;
-        const mongoClient = stitchAppClient.getServiceClient(
-          RemoteMongoClient.factory,
-          "mongodb-atlas"
-        );
-        const db = mongoClient.db("taskmanager");
-        const tasks = db.collection("tasks");
-        tasks
-          .updateOne(
-            { author: client.auth.user.id },
-            { $set: { status: "new" } },
-            { upsert: true }
-          )
-          .then(() =>
-            tasks
-              .find({ author: client.auth.user.id }, { limit: 100 })
-              .asArray()
-          )
-          .then(docs => {
-            console.warn("Found docs", docs);
-          })
-          .catch(err => {
-            console.warn(err);
-          });
       }
     });
   }
@@ -98,6 +84,33 @@ export default class App extends React.Component {
       .catch(err => {
         console.log(`Failed to log out: ${err}`);
         this.setState({ currentUserId: undefined });
+      });
+  }
+
+  _onPressTest() {
+    const stitchAppClient = Stitch.defaultAppClient;
+    const mongoClient = stitchAppClient.getServiceClient(
+      RemoteMongoClient.factory,
+      "mongodb-atlas"
+    );
+    const db = mongoClient.db("taskmanager");
+    const tasks = db.collection("tasks");
+    tasks
+      .updateOne(
+        { author: this.state.currentUserId },
+        { $set: { status: "new", description: "noDESC" } },
+        { upsert: true }
+      )
+      .then(() =>
+        tasks
+          .find({ author: this.state.currentUserId }, { limit: 100 })
+          .asArray()
+      )
+      .then(docs => {
+        console.warn("Found docs", docs);
+      })
+      .catch(err => {
+        console.warn(err);
       });
   }
 }
